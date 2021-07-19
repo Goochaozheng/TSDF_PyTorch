@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 import open3d as o3d
 
-from reconstruct import TSDFVolume
+from reconstruct import TSDFVolume_custom
 from utils import visualize
 
 
@@ -51,7 +51,8 @@ def drawNextFrame(vis):
 	depth_im[depth_im == 65.535] = 0
 
 	cam_pose = np.loadtxt("data/demo/frame-%06d.pose.txt" % (vis_param.index))
-	# cam_pose[:3, 3] /= 1000.
+	
+    # Update camera transform with regarded to previous frame
 	transform_mat = np.dot(cam_pose, np.linalg.inv(vis_param.current_pose))
 	camera.transform(transform_mat)
 	vis_param.current_pose = cam_pose
@@ -62,13 +63,13 @@ def drawNextFrame(vis):
 	vis.update_renderer()
 
 	# Integrate observation into voxel volume (assume color aligned with depth)
-	tsdf_vol.integrate(color_image, depth_im, cam_intr, cam_pose, obs_weight=1.)
+	tsdf_vol.integrate(depth_im, cam_intr, cam_pose, weight=1.)
 
 	if(vis_param.index % 20 == 0):
 		# verts, faces, norms, colors = tsdf_vol.get_mesh()
 		# TSDFVolume.meshwrite("mesh/{}.ply".format(vis_param.index), verts, faces, norms, colors)
-		tsdf_vol.extractMesh()
-		updateGeometry(tsdf_vol.mesh, "mesh", vis)
+		tsdf_vol.extract_mesh()
+		updateGeometry(tsdf_vol.get_mesh(), "mesh", vis)
 
 	vis_param.n_steps_left -= 1
 	vis_param.index += 1
@@ -117,7 +118,7 @@ if __name__ == "__main__":
 		[-2.6663104 ,  2.60146141],
 		[0.         ,  5.76272371]
 	]
-	tsdf_vol = TSDFVolume.TSDFVolume(vol_bnds, voxel_size=0.02)
+	tsdf_vol = TSDFVolume_custom.TSDFVolume(vol_bnds, vox_size=0.02, use_gpu=True, verbose=True)
 
 	window = o3d.visualization.VisualizerWithKeyCallback()
 	# window = o3d.visualization.Visualizer()
@@ -126,8 +127,8 @@ if __name__ == "__main__":
 	# ctr = window.get_view_control()
 	# ctr.translate(0,0,-5.0)
 
-	window.register_key_callback(key=ord("."), callback_func=step)
-	window.register_key_callback(key=ord(" "), callback_func=play)
+	window.register_key_callback(key=ord(" "), callback_func=step)
+	window.register_key_callback(key=ord("."), callback_func=play)
 
 	origin = o3d.geometry.TriangleMesh.create_coordinate_frame()
 	camera = visualize.camera(np.eye(4), scale=0.1)
