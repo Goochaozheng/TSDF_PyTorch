@@ -154,8 +154,8 @@ class TSDFVolume:
         # Compute and Integrate TSDF
         sdf_value = depth_value - voxel_z         # Compute SDF
         voxel_mask = torch.logical_and(depth_value > 0, sdf_value >= -self._trunc_margin)        # Truncate SDF
-        tsdf_value = sdf_value[voxel_mask]
         tsdf_value = torch.minimum(torch.ones_like(sdf_value, device=self._device), sdf_value / self._trunc_margin)
+        tsdf_value = tsdf_value[voxel_mask]
 
         # Get coordinates of valid voxels with valid TSDF value
         valid_vox_x = self._vox_coords[voxel_mask, 0].long()
