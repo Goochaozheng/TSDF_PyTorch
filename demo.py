@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 import open3d as o3d
 
-from reconstruct import TSDFVolume_custom
+from reconstruct import TSDFVolume
 from utils import visualize
 
 
@@ -57,6 +57,11 @@ def drawNextFrame(vis):
 	camera.transform(transform_mat)
 	vis_param.current_pose = cam_pose
 
+	# TODO: View camera control, view follow the camera pose
+	# view_cam = vis_param.view_control.convert_to_pinhole_camera_parameters()
+	# view_cam.extrinsic = cam_pose
+	# vis_param.view_control.convert_from_pinhole_camera_parameters(view_cam)
+
 	print("Camera Pose: {}".format(camera.get_center()))
 	# updateGeometry(camera, "camera_geometry", vis)
 	vis.update_geometry(camera)
@@ -66,6 +71,8 @@ def drawNextFrame(vis):
 	tsdf_vol.integrate(depth_im, cam_intr, cam_pose, weight=1.)
 
 	if(vis_param.index % 20 == 0):
+
+
 		# verts, faces, norms, colors = tsdf_vol.get_mesh()
 		# TSDFVolume.meshwrite("mesh/{}.ply".format(vis_param.index), verts, faces, norms, colors)
 		tsdf_vol.extract_mesh()
@@ -118,7 +125,7 @@ if __name__ == "__main__":
 		[-2.6663104 ,  2.60146141],
 		[0.         ,  5.76272371]
 	]
-	tsdf_vol = TSDFVolume_custom.TSDFVolume(vol_bnds, vox_size=0.02, use_gpu=True, verbose=True)
+	tsdf_vol = TSDFVolume.TSDFVolume(vol_bnds, vox_size=0.02, use_gpu=True, verbose=True)
 
 	window = o3d.visualization.VisualizerWithKeyCallback()
 	# window = o3d.visualization.Visualizer()
@@ -129,6 +136,12 @@ if __name__ == "__main__":
 
 	window.register_key_callback(key=ord(" "), callback_func=step)
 	window.register_key_callback(key=ord("."), callback_func=play)
+
+	# TODO: View camera control, view follow the camera pose
+	# vis_param.view_control = window.get_view_control()
+	# view_cam = vis_param.view_control.convert_to_pinhole_camera_parameters()
+	# view_cam.extrinsic = np.eye(4)
+	# vis_param.view_control.convert_from_pinhole_camera_parameters(view_cam)
 
 	origin = o3d.geometry.TriangleMesh.create_coordinate_frame()
 	camera = visualize.camera(np.eye(4), scale=0.1)
@@ -142,6 +155,11 @@ if __name__ == "__main__":
 	window.add_geometry(origin)
 	updateGeometry(camera, "camera_geometry", window)
 	# updateGeometry(grid, "grid", window)
+
+	# view_control.set_lookat([0,0,1])
+	# vis_param.view_control.set_zoom(0.1)
+	# vis_param.view_control.camera_local_translate(1,0,0)
+	# view_control.set_up([0,0,1])
 
 	window.register_animation_callback(callback_func=drawNextFrame)
 	window.run()
