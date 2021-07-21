@@ -1,6 +1,6 @@
 # PyTroch Implemented TSDF
 
-A TSDF fusion framework implemented using PyTorch.   
+A TSDF fusion framework implemented using Python & PyTorch.   
 - Better integration with PyTorch based neural network.    
 - Utilizing the GPU & CPU capability of torch tensor.  
 - Adding visualization based on Open3D.  
