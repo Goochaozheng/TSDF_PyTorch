@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 import open3d as o3d
 
-from reconstruct import TSDFVolume
+import TSDFVolume
 from utils import visualize
 
 
@@ -14,12 +14,6 @@ vis_param.index = 0
 vis_param.n_imgs = 1000
 vis_param.stop = True
 vis_param.current_pose = np.eye(4)
-
-
-# def keyStep(vis):
-# 	drawNextFrame(vis)
-# 	vis_param.n_steps_left += 1
-# 	return False
 
 
 def updateGeometry(geom, name, vis):
@@ -71,10 +65,6 @@ def drawNextFrame(vis):
 	tsdf_vol.integrate(depth_im, cam_intr, cam_pose, weight=1.)
 
 	if(vis_param.index % 20 == 0):
-
-
-		# verts, faces, norms, colors = tsdf_vol.get_mesh()
-		# TSDFVolume.meshwrite("mesh/{}.ply".format(vis_param.index), verts, faces, norms, colors)
 		tsdf_vol.extract_mesh()
 		updateGeometry(tsdf_vol.get_mesh(), "mesh", vis)
 
