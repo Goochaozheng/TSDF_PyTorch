@@ -7,14 +7,12 @@ import open3d as o3d
 import TSDFVolume
 from utils import visualize
 
-
 vis_param = argparse.Namespace()
 vis_param.n_steps_left = 0
 vis_param.index = 0
 vis_param.n_imgs = 1000
 vis_param.stop = True
 vis_param.current_pose = np.eye(4)
-
 
 def updateGeometry(geom, name, vis):
 	"""
@@ -81,7 +79,6 @@ def play(vis):
 def step(vis):
 	vis_param.n_steps_left = 1
 	return False
-
 
 if __name__ == "__main__":
 
